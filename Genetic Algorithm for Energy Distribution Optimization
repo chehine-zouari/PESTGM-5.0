@@ -1,0 +1,58 @@
+import random
+
+# Parameters
+population_size = 50
+num_generations = 100
+mutation_rate = 0.1
+
+# Example energy distribution problem
+num_sources = 5
+num_loads = 10
+
+def fitness(individual):
+    # Calculate fitness as the negative of the sum of squared differences
+    # between the energy supplied and the energy demanded
+    return -sum((sum(individual[j][i] for j in range(num_sources)) - demand[i])**2 for i in range(num_loads))
+
+def create_individual():
+    # Create an individual with random energy distribution
+    return [[random.random() for _ in range(num_loads)] for _ in range(num_sources)]
+
+def mutate(individual):
+    # Mutate an individual by changing a random value
+    source = random.randint(0, num_sources - 1)
+    load = random.randint(0, num_loads - 1)
+    individual[source][load] = random.random()
+
+def crossover(parent1, parent2):
+    # Create a child by crossing over two parents
+    child = [[(parent1[j][i] + parent2[j][i]) / 2 for i in range(num_loads)] for j in range(num_sources)]
+    return child
+
+# Initialize demand for loads
+demand = [random.uniform(0, 1) for _ in range(num_loads)]
+
+# Initialize population
+population = [create_individual() for _ in range(population_size)]
+
+# Genetic algorithm
+for generation in range(num_generations):
+    # Evaluate fitness
+    population = sorted(population, key=fitness, reverse=True)
+    print(f"Generation {generation}: Best fitness = {-fitness(population[0])}")
+    
+    # Selection
+    population = population[:population_size // 2]
+    
+    # Crossover and mutation
+    new_population = []
+    while len(new_population) < population_size:
+        parent1, parent2 = random.sample(population, 2)
+        child = crossover(parent1, parent2)
+        if random.random() < mutation_rate:
+            mutate(child)
+        new_population.append(child)
+    population = new_population
+
+best_individual = population[0]
+print("Best individual:", best_individual)
