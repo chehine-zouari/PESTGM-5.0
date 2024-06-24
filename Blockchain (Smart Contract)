@@ -1,0 +1,41 @@
+pragma solidity ^0.8.0;
+
+contract EnergyTrading {
+    address public owner;
+    uint public tokenPrice = 1 ether; // Set the price for energy tokens
+
+    mapping(address => uint) public balances;
+    mapping(address => uint) public energyBalances;
+
+    event BoughtTokens(address indexed buyer, uint amount);
+    event SoldEnergy(address indexed seller, uint amount, uint price);
+
+    constructor() {
+        owner = msg.sender;
+    }
+
+    function buyTokens() public payable {
+        uint tokens = msg.value / tokenPrice;
+        balances[msg.sender] += tokens;
+        emit BoughtTokens(msg.sender, tokens);
+    }
+
+    function sellEnergy(uint amount, uint price) public {
+        require(energyBalances[msg.sender] >= amount, "Not enough energy");
+        energyBalances[msg.sender] -= amount;
+        payable(msg.sender).transfer(amount * price);
+        emit SoldEnergy(msg.sender, amount, price);
+    }
+
+    function addEnergy(uint amount) public {
+        energyBalances[msg.sender] += amount;
+    }
+
+    function getEnergyBalance() public view returns (uint) {
+        return energyBalances[msg.sender];
+    }
+
+    function getTokenBalance() public view returns (uint) {
+        return balances[msg.sender];
+    }
+}
