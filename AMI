@@ -1,0 +1,47 @@
+pip install pandas matplotlib seaborn 
+
+import pandas as pd
+
+# Load the data
+data = pd.read_csv('Electrecity Usage Dataset - Smart Meter (csv file).csv')
+
+# Parse the timestamp column as datetime
+data['Timestamp'] = pd.to_datetime(data['Timestamp'])
+
+# Set the timestamp as the index
+data.set_index('Timestamp', inplace=True)
+
+# Display the first few rows of the dataset
+print(data.head())
+
+import matplotlib.pyplot as plt
+
+# Plot electricity consumption over time
+plt.figure(figsize=(12, 6))
+plt.plot(data.index, data['Electricity Consumption (kWh)'], label='Electricity Consumption (kWh)')
+plt.xlabel('Time')
+plt.ylabel('Electricity Consumption (kWh)')
+plt.title('Electricity Consumption Over Time')
+plt.legend()
+plt.show()
+
+plt.figure(figsize=(10, 6))
+plt.hist(data['Electricity Consumption (kWh)'], bins=30, color='skyblue', edgecolor='black')
+plt.xlabel('Electricity Consumption (kWh)')
+plt.ylabel('Frequency')
+plt.title('Distribution of Electricity Consumption')
+plt.show()
+
+import seaborn as sns
+
+# Add hour of day as a separate column
+data['Hour of Day'] = data.index.hour
+
+plt.figure(figsize=(14, 7))
+sns.boxplot(x='Hour of Day', y='Electricity Consumption (kWh)', data=data)
+plt.xlabel('Hour of Day')
+plt.ylabel('Electricity Consumption (kWh)')
+plt.title('Electricity Consumption by Hour of the Day')
+plt.show()
+
+
