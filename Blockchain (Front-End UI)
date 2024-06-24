@@ -1,0 +1,53 @@
+import React, { useState, useEffect } from 'react';
+import Web3 from 'web3';
+import EnergyTrading from './contracts/EnergyTrading.json';
+
+const App = () => {
+    const [account, setAccount] = useState('');
+    const [energyBalance, setEnergyBalance] = useState(0);
+    const [tokenBalance, setTokenBalance] = useState(0);
+    const [web3, setWeb3] = useState(null);
+    const [contract, setContract] = useState(null);
+
+    useEffect(() => {
+        async function loadBlockchainData() {
+            const web3 = new Web3(Web3.givenProvider || "http://localhost:7545");
+            setWeb3(web3);
+
+            const accounts = await web3.eth.requestAccounts();
+            setAccount(accounts[0]);
+
+            const networkId = await web3.eth.net.getId();
+            const deployedNetwork = EnergyTrading.networks[networkId];
+            const instance = new web3.eth.Contract(
+                EnergyTrading.abi,
+                deployedNetwork && deployedNetwork.address,
+            );
+            setContract(instance);
+
+            const energy = await instance.methods.getEnergyBalance().call({ from: accounts[0] });
+            setEnergyBalance(energy);
+            const tokens = await instance.methods.getTokenBalance().call({ from: accounts[0] });
+            setTokenBalance(tokens);
+        }
+        loadBlockchainData();
+    }, []);
+
+    const buyTokens = async (amount) => {
+        await contract.methods.buyTokens().send({ from: account, value: web3.utils.toWei(amount, 'ether') });
+        const tokens = await contract.methods.getTokenBalance().call({ from: account });
+        setTokenBalance(tokens);
+    };
+
+    return (
+        <div>
+            <h1>Energy Trading Platform</h1>
+            <p>Account: {account}</p>
+            <p>Energy Balance: {energyBalance} kWh</p>
+            <p>Token Balance: {tokenBalance} Tokens</p>
+            <button onClick={() => buyTokens('0.1')}>Buy Tokens</button>
+        </div>
+    );
+};
+
+export default App;
