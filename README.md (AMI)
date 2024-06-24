@@ -1,0 +1,12 @@
+# Electricity Usage Analysis
+
+This project provides a basic analysis of electricity consumption data over time using Python. The analysis includes visualizations to understand the trends and distributions of electricity usage.
+
+## Installation
+
+To run this project, you need to install the following Python packages:
+- pandas
+- matplotlib
+- seaborn
+
+You can install these packages using pip
