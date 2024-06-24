@@ -1,0 +1,44 @@
+import numpy as np
+import pandas as pd
+from hmmlearn.hmm import GaussianHMM
+import matplotlib.pyplot as plt
+
+# Simulate hourly electricity consumption data for a year
+np.random.seed(42)
+data = pd.DataFrame({
+    'Timestamp': pd.date_range(start='2023-01-01', periods=8760, freq='H'),
+    'Electricity_Consumption': 10 + np.sin(np.linspace(0, 50, 8760)) + np.random.normal(0, 1, 8760)
+})
+data.set_index('Timestamp', inplace=True)
+
+# Prepare the data
+consumption_values = data['Electricity_Consumption'].values.reshape(-1, 1)
+
+# Train HMM model
+model = GaussianHMM(n_components=3, covariance_type="full", n_iter=1000).fit(consumption_values[:int(0.8*len(consumption_values))])
+
+# Predict the hidden states
+hidden_states = model.predict(consumption_values)
+
+# Predict future consumption
+future_steps = 24
+last_value = consumption_values[-1].reshape(1, -1)
+predicted_consumption = []
+
+for _ in range(future_steps):
+    next_hidden_state = model.predict(last_value)
+    next_value = model.means_[next_hidden_state] + np.sqrt(model.covars_[next_hidden_state]) * np.random.randn()
+    predicted_consumption.append(next_value[0])
+    last_value = next_value
+
+# Plot results
+plt.figure(figsize=(12, 6))
+plt.plot(data.index, data['Electricity_Consumption'], label='Observed')
+plt.plot(pd.date_range(start=data.index[-1], periods=future_steps, freq='H'), predicted_consumption, label='Predicted', linestyle='--')
+plt.xlabel('Time')
+plt.ylabel('Electricity Consumption (kWh)')
+plt.title('Electricity Consumption Prediction using HMM')
+plt.legend()
+plt.show()
+
+
