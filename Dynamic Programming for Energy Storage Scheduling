@@ -1,0 +1,34 @@
+def energy_storage_optimization(prices, storage_capacity, initial_storage):
+    n = len(prices)
+    dp = [[0] * (storage_capacity + 1) for _ in range(n + 1)]
+
+    for i in range(n - 1, -1, -1):
+        for j in range(storage_capacity + 1):
+            dp[i][j] = dp[i + 1][j]  # No action
+            if j > 0:
+                dp[i][j] = max(dp[i][j], dp[i + 1][j - 1] + prices[i])  # Discharge
+            if j < storage_capacity:
+                dp[i][j] = max(dp[i][j], dp[i + 1][j + 1] - prices[i])  # Charge
+
+    # Reconstruct the schedule
+    schedule = []
+    j = initial_storage
+    for i in range(n):
+        if j > 0 and dp[i][j] == dp[i + 1][j - 1] + prices[i]:
+            schedule.append('Discharge')
+            j -= 1
+        elif j < storage_capacity and dp[i][j] == dp[i + 1][j + 1] - prices[i]:
+            schedule.append('Charge')
+            j += 1
+        else:
+            schedule.append('No action')
+
+    return dp[0][initial_storage], schedule
+
+# Example usage
+prices = [10, 20, 30, 40, 50]
+storage_capacity = 2
+initial_storage = 1
+profit, schedule = energy_storage_optimization(prices, storage_capacity, initial_storage)
+print(f"Max profit: {profit}")
+print(f"Schedule: {schedule}")
