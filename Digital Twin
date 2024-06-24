@@ -3,7 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LinearRegression
 import matplotlib.pyplot as plt
 
-# Load the data (assuming you have collected and preprocessed your data)
+# Load the data 
 data = pd.read_csv('biomass_plant_data.csv')
 
 # Select relevant features and target variable
