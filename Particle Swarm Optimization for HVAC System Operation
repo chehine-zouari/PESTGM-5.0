@@ -1,0 +1,33 @@
+import numpy as np
+
+# Parameters
+num_particles = 30
+num_iterations = 100
+dim = 2  # Example: temperature and humidity settings
+
+# Objective function to minimize (example: energy consumption)
+def objective_function(x):
+    temperature, humidity = x
+    energy_consumption = (temperature - 22)**2 + (humidity - 50)**2  # Simplified model
+    return energy_consumption
+
+# Initialize particles
+particles = np.random.rand(num_particles, dim)
+velocities = np.random.rand(num_particles, dim) - 0.5
+p_best = particles.copy()
+g_best = particles[np.argmin([objective_function(p) for p in particles])]
+
+# PSO algorithm
+for _ in range(num_iterations):
+    for i in range(num_particles):
+        if objective_function(particles[i]) < objective_function(p_best[i]):
+            p_best[i] = particles[i]
+    if min([objective_function(p) for p in p_best]) < objective_function(g_best):
+        g_best = p_best[np.argmin([objective_function(p) for p in p_best])]
+
+    for i in range(num_particles):
+        velocities[i] = 0.5 * velocities[i] + 0.5 * (p_best[i] - particles[i]) + 0.5 * (g_best - particles[i])
+        particles[i] += velocities[i]
+
+print("Best solution:", g_best)
+print("Best objective value:", objective_function(g_best))
